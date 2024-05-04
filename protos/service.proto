@@ -1,0 +1,89 @@
+syntax = "proto3";
+package go_grpc;
+
+import "pagination.proto";
+
+option go_package = "pb/service";
+
+// Service User
+service AuthentificationService {
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Register(RegisterRequest) returns (Status);
+    rpc Logout(LogoutRequest) returns (Status);
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    Status status = 1;
+    string token = 2;
+}
+
+message RegisterRequest {
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string password = 4;
+    string confirm_password = 5;
+}
+
+message LogoutRequest {
+    string token = 1;
+}
+
+// Service Product
+service ProductService {
+    rpc GetProducts(Page) returns (Products);
+    rpc GetProduct(Id) returns (Product);
+    rpc CreateProduct(Product) returns(CProduct);
+    rpc UpdateProduct(Product) returns(UProduct);
+    rpc DeleteProduct(Id) returns(Status);
+}
+
+message Empty {};
+
+message Products {
+    Pagination pagination = 1;
+    repeated Product data = 2;
+}
+
+message CProduct {
+    uint32 status = 1;
+    string message = 2;
+    Product product = 3;
+}
+
+message UProduct {
+    uint32 status = 1;
+    string message = 2;
+    Product product = 3;
+}
+
+message Product {
+    uint64 id = 1;  
+    string name = 2;
+    uint32 stock = 3;
+    double price = 4;
+    Category category = 5;
+}
+
+message Id {
+    uint64 id = 1;
+}
+
+message Category {
+    uint32 id = 1;
+    string name = 2;
+}
+
+message Status {
+    uint32 status = 1;
+    string message = 2;
+}
+
+message Page {
+    optional int64 page = 1;
+}

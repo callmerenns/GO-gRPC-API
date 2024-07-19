@@ -1,89 +1,172 @@
 syntax = "proto3";
+
 package go_grpc;
-
-import "pagination.proto";
-
 option go_package = "pb/service";
 
-// Service User
-service AuthentificationService {
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// Define the authentication service
+service AuthenticationService {
     rpc Login(LoginRequest) returns (LoginResponse);
-    rpc Register(RegisterRequest) returns (Status);
-    rpc Logout(LogoutRequest) returns (Status);
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
 }
 
+// Define the users service
+service UsersService {
+    rpc GetAllProfiles(GetAllProfilesRequest) returns (GetAllProfilesResponse);
+    rpc GetProfileById(GetProfileByIdRequest) returns (UserProfile);
+}
+
+// Define the products service
+service ProductsService {
+    rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
+    rpc GetAllProducts(GetAllProductsRequest) returns (GetAllProductsResponse);
+    rpc GetProductById(GetProductByIdRequest) returns (ProductResponse);
+    rpc GetProductsByStock(GetProductsByStockRequest) returns (GetProductsByStockResponse);
+    rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+}
+
+// Define messages for User
+message UserProfile {
+    uint64 id = 1;
+    string firstname = 2;
+    string lastname = 3;
+    string email = 4;
+    string role = 5;
+    repeated Product products = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+}
+
+// Define messages for Product
+message Product {
+    uint64 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 stock = 4;
+    float price = 5;
+    uint64 user_id = 6;
+    repeated UserProfile users = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+}
+
+// Define messages for Enrollment
+message Enrollment {
+    uint64 user_id = 1;
+    uint64 product_id = 2;
+    UserProfile user = 3;
+    Product product = 4;
+}
+
+// Login
 message LoginRequest {
     string email = 1;
     string password = 2;
 }
 
 message LoginResponse {
-    Status status = 1;
-    string token = 2;
+    string token = 1;
+    UserProfile user = 2;
 }
 
+// Register
 message RegisterRequest {
-    string id = 1;
-    string name = 2;
+    string firstname = 1;
+    string lastname = 2;
     string email = 3;
     string password = 4;
     string confirm_password = 5;
+    string role = 6;
 }
 
+message RegisterResponse {
+    UserProfile user = 1;
+}
+
+// Logout
 message LogoutRequest {
     string token = 1;
 }
 
-// Service Product
-service ProductService {
-    rpc GetProducts(Page) returns (Products);
-    rpc GetProduct(Id) returns (Product);
-    rpc CreateProduct(Product) returns(CProduct);
-    rpc UpdateProduct(Product) returns(UProduct);
-    rpc DeleteProduct(Id) returns(Status);
+message LogoutResponse {
+    string message = 1;
 }
 
-message Empty {};
-
-message Products {
-    Pagination pagination = 1;
-    repeated Product data = 2;
+// Get all profiles with pagination
+message GetAllProfilesRequest {
+    int32 limit = 1;
+    int32 offset = 2;
 }
 
-message CProduct {
-    uint32 status = 1;
-    string message = 2;
-    Product product = 3;
+message GetAllProfilesResponse {
+    repeated UserProfile users = 1;
+    int32 total = 2;
+    int32 limit = 3;
+    int32 offset = 4;
 }
 
-message UProduct {
-    uint32 status = 1;
-    string message = 2;
-    Product product = 3;
-}
-
-message Product {
-    uint64 id = 1;  
-    string name = 2;
-    uint32 stock = 3;
-    double price = 4;
-    Category category = 5;
-}
-
-message Id {
+// Get profile by ID
+message GetProfileByIdRequest {
     uint64 id = 1;
 }
 
-message Category {
-    uint32 id = 1;
+// Create product
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    int32 stock = 3;
+    float price = 4;
+}
+
+message ProductResponse {
+    Product product = 1;
+}
+
+// Get all products with pagination
+message GetAllProductsRequest {
+    int32 limit = 1;
+    int32 offset = 2;
+}
+
+message GetAllProductsResponse {
+    repeated Product products = 1;
+    int32 total = 2;
+    int32 limit = 3;
+    int32 offset = 4;
+}
+
+// Get product by ID
+message GetProductByIdRequest {
+    uint64 id = 1;
+}
+
+// Get products by stock
+message GetProductsByStockRequest {
+    int32 stock = 1;
+}
+
+message GetProductsByStockResponse {
+    repeated Product products = 1;
+}
+
+// Update product
+message UpdateProductRequest {
+    uint64 id = 1;
     string name = 2;
+    string description = 3;
+    int32 stock = 4;
+    float price = 5;
 }
 
-message Status {
-    uint32 status = 1;
-    string message = 2;
+// Delete product
+message DeleteProductRequest {
+    uint64 id = 1;
 }
 
-message Page {
-    optional int64 page = 1;
+message DeleteProductResponse {
+    string message = 1;
 }
